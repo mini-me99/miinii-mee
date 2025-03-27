@@ -54,12 +54,21 @@ function initializeQRScanner() {
     function onScanSuccess(decodedText, decodedResult) {
         // Stop scanning after successful scan
         html5QrCode.stop().then(() => {
-            // Find the product with matching QR code
+            // First check if it's a product QR code
             const product = products.find(p => p.qrCode === decodedText);
             if (product) {
                 showProductDetails(product);
             } else {
-                alert('Product not found. Please try scanning again.');
+                // Check if it's a valid URL
+                try {
+                    const url = new URL(decodedText);
+                    if (confirm(`Open this URL: ${url.href}?`)) {
+                        window.open(url.href, '_blank');
+                    }
+                } catch (e) {
+                    // If it's not a URL, show the content
+                    alert(`QR Code Content: ${decodedText}`);
+                }
             }
         }).catch((err) => {
             console.error('Error stopping scanner:', err);
